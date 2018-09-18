@@ -1,0 +1,40 @@
+type Company {
+  name: String
+  speakers: [Speaker] @relation(name: "WORKS_FOR", direction: "IN")
+}
+
+type Speaker {
+  name: String
+  position: String
+  about: String
+  company: Company @relation(name: "WORKS_FOR", direction: "OUT")
+  sessions: [Session] @relation(name: "SPEAKS_AT", direction: "OUT")
+}
+
+type Session {
+  name: String
+  description: String
+  speakers: [Speaker] @relation(name: "SPEAKS_AT", direction: "IN")
+  type: Event_Type @relation(name: "IS_OF_TYPE", direction: "OUT")
+  venue: Venue @relation(name: "TAKES_PLACE_IN", direction: "OUT")
+  tags: [Tag] @relation(name: "HAS_TAG", direction: "OUT")
+}
+
+type Event_Type {
+  name: String
+  sessions: [Session] @relation(name: "IS_OF_TYPE", direction: "IN")
+}
+
+type Venue {
+  name: String
+  sessions: [Session] @relation(name: "TAKES_PLACE_IN", direction: "IN")
+}
+
+type Tag {
+  name: String
+  sessions: [Session] @relation(name: "HAS_TAG", direction: "IN")
+}
+
+type Query {
+  sessionsBySubstring(string: String): [Session] @cypher(statement: "MATCH (s:Session) WHERE toLower(s.description) CONTAINS toLower($string) OR toLower(s.name) CONTAINS toLower($string) RETURN s;")
+}
